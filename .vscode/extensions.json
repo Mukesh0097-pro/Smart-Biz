@@ -1,0 +1,14 @@
+{
+    "recommendations": [
+        "ms-python.python",
+        "ms-python.debugpy",
+        "ms-python.black-formatter",
+        "ms-vscode.js-debug",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "humao.rest-client",
+        "ms-azuretools.vscode-docker",
+        "github.copilot",
+        "bradlc.vscode-tailwindcss"
+    ]
+}

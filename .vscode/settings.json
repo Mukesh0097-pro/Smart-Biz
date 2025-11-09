@@ -1,0 +1,21 @@
+{
+    "python.defaultInterpreterPath": "${workspaceFolder}/venv/Scripts/python.exe",
+    "editor.formatOnSave": true,
+    "editor.tabSize": 4,
+    "eslint.validate": [
+        "javascript",
+        "typescript"
+    ],
+    "prettier.singleQuote": true,
+    "prettier.semi": false,
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.formatOnSave": true
+    },
+    "[typescript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[typescriptreact]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    }
+}

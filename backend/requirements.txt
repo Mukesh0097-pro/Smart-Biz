@@ -1,0 +1,65 @@
+# FastAPI and Server
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+python-multipart==0.0.6
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+
+# Database
+sqlalchemy==2.0.25
+psycopg2-binary==2.9.9
+alembic==1.13.1
+
+# Redis and Celery
+redis==5.0.1
+celery==5.3.6
+
+# AI and ML
+openai==1.10.0
+langchain==0.1.5
+langchain-openai==0.0.5
+llama-index==0.9.48
+sentence-transformers==2.3.1
+
+# OpenMemory (placeholder - install from source if needed)
+# openmemory==0.1.0
+
+# Firebase
+firebase-admin==6.4.0
+
+# HTTP and API
+httpx==0.26.0
+requests==2.31.0
+
+# Data Processing
+pandas==2.2.0
+numpy==1.26.3
+pydantic==2.5.3
+pydantic-settings==2.1.0
+
+# Utilities
+python-dotenv==1.0.1
+tenacity==8.2.3
+asyncio==3.4.3
+
+# Testing
+pytest==7.4.4
+pytest-asyncio==0.23.4
+pytest-cov==4.1.0
+
+# Security
+cryptography==42.0.1
+pyjwt==2.8.0
+
+# PDF Generation
+reportlab==4.0.9
+fpdf2==2.7.8
+
+# Excel Export
+openpyxl==3.1.2
+
+# Email
+fastapi-mail==1.4.1
+
+# Logging and Monitoring
+loguru==0.7.2
