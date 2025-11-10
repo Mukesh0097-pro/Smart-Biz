@@ -5,9 +5,9 @@ AI Chat API routes - Main AI Co-Pilot Interface
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from typing import Optional
-from backend.core.security import get_current_user, sanitize_input
-from backend.orchestrator.ai_orchestrator import AIOrchestrator
-from backend.memory.memory_manager import MemoryManager
+from core.security import get_current_user, sanitize_input
+from orchestrator.ai_orchestrator import AIOrchestrator
+from memory.memory_manager import MemoryManager
 
 router = APIRouter()
 

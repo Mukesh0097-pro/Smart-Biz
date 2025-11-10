@@ -5,7 +5,7 @@ AI Orchestrator - Routes queries to appropriate handlers
 from typing import Dict, Any, Optional
 import logging
 from openai import OpenAI
-from backend.core.config import settings
+from core.config import settings
 
 logger = logging.getLogger(__name__)
 

@@ -3,7 +3,7 @@ GST filing and compliance API routes
 """
 
 from fastapi import APIRouter, Depends, HTTPException
-from backend.core.security import get_current_user
+from core.security import get_current_user
 
 router = APIRouter()
 

@@ -9,9 +9,9 @@ from typing import List, Optional
 from datetime import datetime
 from uuid import UUID
 
-from backend.core.database import get_db
-from backend.core.security import get_current_user
-from backend.models.invoice import Invoice, InvoiceStatus
+from core.database import get_db
+from core.security import get_current_user
+from models.invoice import Invoice, InvoiceStatus
 
 router = APIRouter()
 

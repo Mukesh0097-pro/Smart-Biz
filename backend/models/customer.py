@@ -6,7 +6,7 @@ from sqlalchemy import Column, String, DateTime, JSON, ForeignKey, Boolean
 from sqlalchemy.dialects.postgresql import UUID
 from datetime import datetime
 import uuid
-from backend.core.database import Base
+from core.database import Base
 
 class Customer(Base):
     __tablename__ = "customers"

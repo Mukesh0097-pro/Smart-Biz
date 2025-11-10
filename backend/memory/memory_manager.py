@@ -7,7 +7,7 @@ import os
 from typing import Dict, Any, Optional, List
 from datetime import datetime
 from pathlib import Path
-from backend.core.config import settings
+from core.config import settings
 
 class MemoryManager:
     """

@@ -8,9 +8,9 @@ from pydantic import BaseModel, EmailStr
 from typing import Optional
 from datetime import datetime
 
-from backend.core.database import get_db
-from backend.core.security import hash_password, verify_password, create_access_token, get_current_user
-from backend.models.user import User
+from core.database import get_db
+from core.security import hash_password, verify_password, create_access_token, get_current_user
+from models.user import User
 
 router = APIRouter()
 

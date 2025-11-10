@@ -7,9 +7,9 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import Optional, Dict
 
-from backend.core.database import get_db
-from backend.core.security import get_current_user
-from backend.models.user import User
+from core.database import get_db
+from core.security import get_current_user
+from models.user import User
 
 router = APIRouter()
 
