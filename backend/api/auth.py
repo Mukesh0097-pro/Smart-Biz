@@ -19,6 +19,9 @@ class UserRegister(BaseModel):
     password: str
     full_name: str
     phone: Optional[str] = None
+    business_name: Optional[str] = None
+    gst_number: Optional[str] = None
+    udyam_id: Optional[str] = None
 
 class UserLogin(BaseModel):
     email: EmailStr
@@ -43,6 +46,9 @@ async def register(user_data: UserRegister, db: Session = Depends(get_db)):
         hashed_password=hash_password(user_data.password),
         full_name=user_data.full_name,
         phone=user_data.phone,
+        business_name=user_data.business_name,
+        gst_number=user_data.gst_number,
+        udyam_id=user_data.udyam_id,
         auth_provider="email"
     )
     
