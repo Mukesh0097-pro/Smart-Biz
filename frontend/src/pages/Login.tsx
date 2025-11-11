@@ -16,6 +16,8 @@ const Login: React.FC = () => {
 
     try {
       await authService.login(email, password);
+      // Trigger auth change event
+      window.dispatchEvent(new Event('authChange'));
       navigate('/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Login failed. Please try again.');

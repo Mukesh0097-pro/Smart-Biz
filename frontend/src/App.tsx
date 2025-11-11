@@ -9,11 +9,30 @@ import Chat from './pages/Chat';
 function App() {
   const [isAuthenticated, setIsAuthenticated] = React.useState(false);
 
-  React.useEffect(() => {
-    // Check if user is authenticated
+  const checkAuth = React.useCallback(() => {
     const token = localStorage.getItem('token');
     setIsAuthenticated(!!token);
   }, []);
+
+  React.useEffect(() => {
+    // Check if user is authenticated on mount
+    checkAuth();
+
+    // Listen for storage changes (login/logout events)
+    const handleStorageChange = () => {
+      checkAuth();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Custom event for same-tab auth changes
+    window.addEventListener('authChange', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('authChange', handleStorageChange);
+    };
+  }, [checkAuth]);
 
   return (
     <Router>

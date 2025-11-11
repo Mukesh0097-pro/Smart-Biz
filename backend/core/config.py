@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     ]
     
     # Database
-    DATABASE_URL: str = "postgresql://admin:password@localhost:5432/smartbiz"
+    DATABASE_URL: str = "sqlite:///./smartbiz.db"
     
     # Redis
     REDIS_URL: str = "redis://localhost:6379/0"

@@ -30,6 +30,8 @@ const Register: React.FC = () => {
 
     try {
       await authService.register(formData.email, formData.password, formData.full_name);
+      // Trigger auth change event
+      window.dispatchEvent(new Event('authChange'));
       navigate('/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Registration failed. Please try again.');

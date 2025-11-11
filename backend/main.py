@@ -11,6 +11,7 @@ from typing import Dict, Any
 
 from api import auth, business, invoice, gst, dashboard, chat
 from core.config import settings
+from core.database import init_db
 
 # Configure logging
 logging.basicConfig(
@@ -44,6 +45,14 @@ app.include_router(invoice.router, prefix="/api/invoices", tags=["Invoices"])
 app.include_router(gst.router, prefix="/api/gst", tags=["GST"])
 app.include_router(dashboard.router, prefix="/api/dashboard", tags=["Dashboard"])
 app.include_router(chat.router, prefix="/api/chat", tags=["AI Chat"])
+
+# Initialize database tables on startup
+@app.on_event("startup")
+async def startup_event():
+    """Initialize database on startup"""
+    logger.info("Initializing database...")
+    init_db()
+    logger.info("Database initialized successfully!")
 
 @app.get("/")
 async def root():
