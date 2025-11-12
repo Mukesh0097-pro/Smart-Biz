@@ -3,7 +3,7 @@ Configuration management for SmartBiz AI
 """
 
 from pydantic_settings import BaseSettings
-from typing import List
+from typing import List, Union
 import os
 from pathlib import Path
 
@@ -21,14 +21,17 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     
     # CORS
-    ALLOWED_ORIGINS: List[str] = [
-        "http://localhost:3000",
-        "http://localhost:3001",
-        "https://smartbiz-ai.vercel.app"
-    ]
+    ALLOWED_ORIGINS: Union[List[str], str] = "http://localhost:3000,http://localhost:3001,https://smartbiz-ai.vercel.app"
+    
+    @property
+    def cors_origins(self) -> List[str]:
+        """Get CORS origins as a list"""
+        if isinstance(self.ALLOWED_ORIGINS, str):
+            return [origin.strip() for origin in self.ALLOWED_ORIGINS.split(",")]
+        return self.ALLOWED_ORIGINS
     
     # Database
-    DATABASE_URL: str = "sqlite:///./smartbiz.db"
+    DATABASE_URL: str = "postgresql://postgres:password@localhost:5432/smartbiz"
     
     # Redis
     REDIS_URL: str = "redis://localhost:6379/0"
