@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import logging
 from typing import Dict, Any
+from contextlib import asynccontextmanager
 
 from api import auth, business, invoice, gst, dashboard, chat
 from core.config import settings
@@ -20,13 +21,25 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifespan context manager for startup/shutdown events"""
+    # Startup
+    logger.info("Initializing database...")
+    init_db()
+    logger.info("Database initialized successfully!")
+    yield
+    # Shutdown (if needed)
+    logger.info("Shutting down...")
+
 # Initialize FastAPI app
 app = FastAPI(
     title="SmartBiz AI Co-Pilot",
     description="AI-powered business management assistant for MSMEs",
     version="1.0.0",
     docs_url="/api/docs",
-    redoc_url="/api/redoc"
+    redoc_url="/api/redoc",
+    lifespan=lifespan
 )
 
 # CORS middleware
@@ -45,14 +58,6 @@ app.include_router(invoice.router, prefix="/api/invoices", tags=["Invoices"])
 app.include_router(gst.router, prefix="/api/gst", tags=["GST"])
 app.include_router(dashboard.router, prefix="/api/dashboard", tags=["Dashboard"])
 app.include_router(chat.router, prefix="/api/chat", tags=["AI Chat"])
-
-# Initialize database tables on startup
-@app.on_event("startup")
-async def startup_event():
-    """Initialize database on startup"""
-    logger.info("Initializing database...")
-    init_db()
-    logger.info("Database initialized successfully!")
 
 @app.get("/")
 async def root():
