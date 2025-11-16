@@ -13,25 +13,8 @@ class User(Base):
     
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     email = Column(String, unique=True, nullable=False, index=True)
-    hashed_password = Column(String, nullable=True)  # Nullable for OAuth users
-    full_name = Column(String)
-    phone = Column(String)
-    
-    # Authentication
-    is_active = Column(Boolean, default=True)
-    is_verified = Column(Boolean, default=False)
-    auth_provider = Column(String, default="email")  # email, google, firebase
-    
-    # Business Profile
-    business_name = Column(String)
-    gst_number = Column(String)
-    udyam_id = Column(String)
-    business_address = Column(JSON)  # Store as JSON
-    business_type = Column(String)  # MSME, Startup, etc.
-    
-    # Preferences
-    language_preference = Column(String, default="en")  # en, hi, ta, etc.
-    timezone = Column(String, default="Asia/Kolkata")
+    hashed_password = Column(String, nullable=False)
+    full_name = Column(String, nullable=False)
     
     # Timestamps
     created_at = Column(DateTime, default=datetime.utcnow)

@@ -10,7 +10,7 @@ import logging
 from typing import Dict, Any
 from contextlib import asynccontextmanager
 
-from api import auth, business, invoice, gst, dashboard, chat
+from api import auth, business, invoice, gst, dashboard, chat, memory
 from core.config import settings
 from core.database import init_db
 
@@ -58,6 +58,7 @@ app.include_router(invoice.router, prefix="/api/invoices", tags=["Invoices"])
 app.include_router(gst.router, prefix="/api/gst", tags=["GST"])
 app.include_router(dashboard.router, prefix="/api/dashboard", tags=["Dashboard"])
 app.include_router(chat.router, prefix="/api/chat", tags=["AI Chat"])
+app.include_router(memory.router, prefix="/api/memory", tags=["Memory"])
 
 @app.get("/")
 async def root():
