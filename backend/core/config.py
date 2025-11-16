@@ -36,15 +36,12 @@ class Settings(BaseSettings):
     # Redis
     REDIS_URL: str = "redis://localhost:6379/0"
     
-    # OpenAI
-    OPENAI_API_KEY: str = ""
-    OPENAI_MODEL: str = "gpt-4-turbo"
+    # Groq LLM (Llama 3.1 8B)
+    GROQ_API_KEY: str = ""
+    GROQ_MODEL: str = "llama-3.1-8b-instant"
     
     # Firebase
     FIREBASE_CREDENTIALS_PATH: str = ""
-    
-    # OpenMemory
-    MEMORY_STORE_PATH: str = "./memory_store"
     
     # GST API (placeholder)
     GST_API_URL: str = "https://gst.gov.in/api/v1"
@@ -68,9 +65,9 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = True
+        extra = "ignore"  # Ignore extra fields from .env
 
 settings = Settings()
 
 # Create necessary directories
-os.makedirs(settings.MEMORY_STORE_PATH, exist_ok=True)
 os.makedirs(settings.UPLOAD_DIR, exist_ok=True)

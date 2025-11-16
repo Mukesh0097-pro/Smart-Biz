@@ -94,6 +94,46 @@ export const invoiceService = {
     const response = await apiClient.get(`/invoices/${invoiceId}`);
     return response.data;
   },
+
+  async downloadInvoice(invoiceId: string, invoiceNumber: string) {
+    try {
+      const response = await apiClient.get(`/invoices/${invoiceId}/download`, {
+        responseType: 'blob',
+      });
+      
+      // Check if response is actually a PDF
+      if (response.data.type === 'application/pdf') {
+        // Create blob link to download
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `${invoiceNumber}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+      } else {
+        // If we got an error response as blob, convert it to text
+        const text = await response.data.text();
+        console.error('Server error:', text);
+        throw new Error('Failed to generate PDF. Please check server logs.');
+      }
+    } catch (error: any) {
+      console.error('Download error:', error);
+      if (error.response?.data) {
+        // Try to extract error message from blob
+        const errorText = await error.response.data.text();
+        console.error('Server error response:', errorText);
+        try {
+          const errorJson = JSON.parse(errorText);
+          throw new Error(errorJson.detail || 'Failed to download invoice');
+        } catch {
+          throw new Error(errorText || 'Failed to download invoice');
+        }
+      }
+      throw error;
+    }
+  },
 };
 
 export const dashboardService = {

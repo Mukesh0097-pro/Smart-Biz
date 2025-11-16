@@ -20,8 +20,11 @@ class ChatQuery(BaseModel):
 
 class ChatResponse(BaseModel):
     reply: str
+    intent: Optional[str] = None
+    entities: Optional[dict] = None
     context: Optional[dict] = None
     suggestions: Optional[list] = None
+    tools_used: Optional[list] = None
 
 # Initialize AI components
 ai_orchestrator = AIOrchestrator()
@@ -55,19 +58,41 @@ async def handle_chat_query(
             language=chat_query.language
         )
         
+        # Extract answer from new response format
+        answer = response.get("answer", "I'm sorry, I couldn't process that request.")
+        intent = response.get("intent", "unknown")
+        entities = response.get("entities", {})
+        tools_used = response.get("tools_used", [])
+        memory_to_save = response.get("memory_to_save", [])
+        
         # Save conversation to memory
         memory.save_conversation(
             user_id=user_id,
             session_id=chat_query.session_id,
             query=query,
-            response=response["reply"],
-            intent=response.get("intent")
+            response=answer,
+            intent=intent,
+            entities=entities
         )
         
+        # Generate contextual suggestions based on intent
+        suggestions = []
+        if intent.startswith("invoice"):
+            suggestions = ["Create a new invoice", "View recent invoices", "Check pending invoices"]
+        elif intent.startswith("gst"):
+            suggestions = ["Show GST summary", "File GST return", "Check compliance status"]
+        elif intent.startswith("business"):
+            suggestions = ["Show revenue trends", "Top customers", "Payment analysis"]
+        else:
+            suggestions = ["Create an invoice", "File GST", "Show my dashboard"]
+        
         return ChatResponse(
-            reply=response["reply"],
-            context=response.get("context"),
-            suggestions=response.get("suggestions")
+            reply=answer,
+            intent=intent,
+            entities=entities,
+            context={"memory_saved": len(memory_to_save) > 0},
+            suggestions=suggestions,
+            tools_used=tools_used
         )
         
     except Exception as e:

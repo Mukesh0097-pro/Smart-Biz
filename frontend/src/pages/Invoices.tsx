@@ -21,6 +21,16 @@ const Invoices: React.FC = () => {
     }
   };
 
+  const handleDownload = async (invoiceId: string, invoiceNumber: string) => {
+    try {
+      await invoiceService.downloadInvoice(invoiceId, invoiceNumber);
+    } catch (error: any) {
+      console.error('Error downloading invoice:', error);
+      const errorMessage = error.message || 'Failed to download invoice PDF. Please check the console for details.';
+      alert(errorMessage);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
@@ -72,6 +82,15 @@ const Invoices: React.FC = () => {
                               {invoice.status}
                             </span>
                           </div>
+                          <button
+                            onClick={() => handleDownload(invoice.id, invoice.invoice_number)}
+                            className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                          >
+                            <svg className="-ml-0.5 mr-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            PDF
+                          </button>
                         </div>
                       </div>
                     </div>

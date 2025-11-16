@@ -58,28 +58,5 @@ def init_db():
     """
     Initialize database tables
     """
-    # Drop and recreate users table to match new schema
-    try:
-        with engine.begin() as conn:
-            conn.execute(text("DROP TABLE IF EXISTS users CASCADE"))
-    except Exception:
-        pass
-    
+    # Create all tables if they don't exist
     Base.metadata.create_all(bind=engine)
-    
-    # Ensure DB constraints align with frontend registration (email, password, full_name required)
-    try:
-        with engine.begin() as conn:
-            # Make full_name NOT NULL
-            try:
-                conn.execute(text("ALTER TABLE users ALTER COLUMN full_name SET NOT NULL"))
-            except Exception:
-                pass
-            # Make hashed_password NOT NULL
-            try:
-                conn.execute(text("ALTER TABLE users ALTER COLUMN hashed_password SET NOT NULL"))
-            except Exception:
-                pass
-    except Exception:
-        # Best-effort; if ALTER fails (e.g., SQLite or already applied), continue
-        pass
