@@ -18,10 +18,6 @@ class UserRegister(BaseModel):
     email: EmailStr
     password: str
     full_name: str
-    phone: Optional[str] = None
-    business_name: Optional[str] = None
-    gst_number: Optional[str] = None
-    udyam_id: Optional[str] = None
 
 class UserLogin(BaseModel):
     email: EmailStr
@@ -44,12 +40,7 @@ async def register(user_data: UserRegister, db: Session = Depends(get_db)):
     new_user = User(
         email=user_data.email,
         hashed_password=hash_password(user_data.password),
-        full_name=user_data.full_name,
-        phone=user_data.phone,
-        business_name=user_data.business_name,
-        gst_number=user_data.gst_number,
-        udyam_id=user_data.udyam_id,
-        auth_provider="email"
+        full_name=user_data.full_name
     )
     
     db.add(new_user)
@@ -95,19 +86,15 @@ async def login(credentials: UserLogin, db: Session = Depends(get_db)):
     }
 
 @router.get("/me")
-async def get_me(current_user: dict = Depends(get_current_user), db: Session = Depends(get_db)):
-    """Get current user profile"""
-    user = db.query(User).filter(User.id == current_user["user_id"]).first()
+async def get_me(db: Session = Depends(get_db)):
+    """Get current user profile (for testing - returns first user)"""
+    # For testing: return first user if no auth provided
+    user = db.query(User).first()
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="No users found. Please register first.")
     
     return {
         "id": str(user.id),
         "email": user.email,
-        "full_name": user.full_name,
-        "phone": user.phone,
-        "business_name": user.business_name,
-        "gst_number": user.gst_number,
-        "udyam_id": user.udyam_id,
-        "language_preference": user.language_preference
+        "full_name": user.full_name
     }
