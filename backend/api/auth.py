@@ -101,7 +101,7 @@ async def get_me(current_user: dict = Depends(get_current_user), db: Session = D
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    return {
+    return {   
         "id": str(user.id),
         "email": user.email,
         "full_name": user.full_name,
