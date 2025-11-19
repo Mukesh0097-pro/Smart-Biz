@@ -2,7 +2,8 @@
 Authentication API routes
 """
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Form
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr
 from typing import Optional
@@ -17,7 +18,7 @@ router = APIRouter()
 class UserRegister(BaseModel):
     email: EmailStr
     password: str
-    full_name: str
+    business_name: Optional[str] = None
 
 class UserLogin(BaseModel):
     email: EmailStr
@@ -40,7 +41,8 @@ async def register(user_data: UserRegister, db: Session = Depends(get_db)):
     new_user = User(
         email=user_data.email,
         hashed_password=hash_password(user_data.password),
-        full_name=user_data.full_name
+        business_name=user_data.business_name,
+        full_name=user_data.business_name or user_data.email.split('@')[0]
     )
     
     db.add(new_user)
@@ -56,16 +58,21 @@ async def register(user_data: UserRegister, db: Session = Depends(get_db)):
         "user": {
             "id": str(new_user.id),
             "email": new_user.email,
-            "full_name": new_user.full_name
+            "full_name": new_user.full_name,
+            "business_name": new_user.business_name
         }
     }
 
 @router.post("/login", response_model=Token)
-async def login(credentials: UserLogin, db: Session = Depends(get_db)):
-    """Login user"""
-    # Find user
-    user = db.query(User).filter(User.email == credentials.email).first()
-    if not user or not verify_password(credentials.password, user.hashed_password):
+async def login(
+    username: str = Form(...),
+    password: str = Form(...),
+    db: Session = Depends(get_db)
+):
+    """Login user - accepts form data (username as email, password)"""
+    # Find user by email (username field contains email)
+    user = db.query(User).filter(User.email == username).first()
+    if not user or not verify_password(password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid email or password")
     
     # Update last login
@@ -81,7 +88,8 @@ async def login(credentials: UserLogin, db: Session = Depends(get_db)):
         "user": {
             "id": str(user.id),
             "email": user.email,
-            "full_name": user.full_name
+            "full_name": user.full_name,
+            "business_name": getattr(user, 'business_name', None)
         }
     }
 

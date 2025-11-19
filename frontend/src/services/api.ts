@@ -1,8 +1,16 @@
 import axios from 'axios';
+import type {
+  LoginResponse,
+  ChatQueryRequest,
+  ChatQueryResponse,
+  Invoice,
+  GSTVerificationResponse,
+  Customer,
+} from '../types';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
+const API_BASE_URL = 'http://localhost:8000/api';
 
-const apiClient = axios.create({
+const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
@@ -10,7 +18,7 @@ const apiClient = axios.create({
 });
 
 // Add auth token to requests
-apiClient.interceptors.request.use((config) => {
+api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -18,134 +26,100 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
-// Handle response errors
-apiClient.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      window.location.href = '/login';
-    }
-    return Promise.reject(error);
-  }
-);
-
-export const authService = {
-  async login(email: string, password: string) {
-    const response = await apiClient.post('/auth/login', { email, password });
-    if (response.data.access_token) {
-      localStorage.setItem('token', response.data.access_token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
-    }
+// Auth API
+export const authAPI = {
+  login: async (email: string, password: string): Promise<LoginResponse> => {
+    const formData = new FormData();
+    formData.append('username', email);
+    formData.append('password', password);
+    
+    const response = await axios.post(`${API_BASE_URL}/auth/login`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
     return response.data;
   },
 
-  async register(email: string, password: string, full_name: string) {
-    const response = await apiClient.post('/auth/register', {
+  register: async (email: string, password: string, businessName?: string): Promise<LoginResponse> => {
+    const response = await axios.post(`${API_BASE_URL}/auth/register`, {
       email,
       password,
-      full_name,
-    });
-    if (response.data.access_token) {
-      localStorage.setItem('token', response.data.access_token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
-    }
-    return response.data;
-  },
-
-  logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    window.location.href = '/login';
-  },
-
-  getCurrentUser() {
-    const user = localStorage.getItem('user');
-    return user ? JSON.parse(user) : null;
-  },
-};
-
-export const chatService = {
-  async sendQuery(query: string) {
-    const response = await apiClient.post('/chat/query', { query });
-    return response.data;
-  },
-
-  async getSuggestions() {
-    const response = await apiClient.get('/chat/suggestions');
-    return response.data;
-  },
-};
-
-export const invoiceService = {
-  async getInvoices(status?: string) {
-    const response = await apiClient.get('/invoices/list', {
-      params: { status },
+      business_name: businessName,
     });
     return response.data;
   },
-
-  async createInvoice(invoiceData: any) {
-    const response = await apiClient.post('/invoices/create', invoiceData);
-    return response.data;
-  },
-
-  async getInvoice(invoiceId: string) {
-    const response = await apiClient.get(`/invoices/${invoiceId}`);
-    return response.data;
-  },
-
-  async downloadInvoice(invoiceId: string, invoiceNumber: string) {
-    try {
-      const response = await apiClient.get(`/invoices/${invoiceId}/download`, {
-        responseType: 'blob',
-      });
-      
-      // Check if response is actually a PDF
-      if (response.data.type === 'application/pdf') {
-        // Create blob link to download
-        const url = window.URL.createObjectURL(new Blob([response.data]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', `${invoiceNumber}.pdf`);
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        window.URL.revokeObjectURL(url);
-      } else {
-        // If we got an error response as blob, convert it to text
-        const text = await response.data.text();
-        console.error('Server error:', text);
-        throw new Error('Failed to generate PDF. Please check server logs.');
-      }
-    } catch (error: any) {
-      console.error('Download error:', error);
-      if (error.response?.data) {
-        // Try to extract error message from blob
-        const errorText = await error.response.data.text();
-        console.error('Server error response:', errorText);
-        try {
-          const errorJson = JSON.parse(errorText);
-          throw new Error(errorJson.detail || 'Failed to download invoice');
-        } catch {
-          throw new Error(errorText || 'Failed to download invoice');
-        }
-      }
-      throw error;
-    }
-  },
 };
 
-export const dashboardService = {
-  async getOverview() {
-    const response = await apiClient.get('/dashboard/overview');
-    return response.data;
-  },
-
-  async getInsights() {
-    const response = await apiClient.get('/dashboard/insights');
+// Chat API
+export const chatAPI = {
+  sendQuery: async (query: string): Promise<ChatQueryResponse> => {
+    const response = await api.post('/chat/query', { query });
     return response.data;
   },
 };
 
-export default apiClient;
+// Invoice API
+export const invoiceAPI = {
+  list: async (): Promise<Invoice[]> => {
+    const response = await api.get('/invoices/list');
+    return response.data;
+  },
+
+  get: async (id: number): Promise<Invoice> => {
+    const response = await api.get(`/invoices/${id}`);
+    return response.data;
+  },
+
+  create: async (invoiceData: Partial<Invoice>): Promise<Invoice> => {
+    const response = await api.post('/invoices/create', invoiceData);
+    return response.data;
+  },
+
+  downloadPDF: async (id: number): Promise<void> => {
+    const response = await api.get(`/invoices/${id}/download`, {
+      responseType: 'blob',
+    });
+    
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `invoice_${id}.pdf`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  },
+
+  delete: async (id: number): Promise<void> => {
+    await api.delete(`/invoices/${id}`);
+  },
+};
+
+// GST API
+export const gstAPI = {
+  verify: async (gstin: string): Promise<GSTVerificationResponse> => {
+    const response = await api.get(`/gst/verify?gstin=${gstin}`);
+    return response.data;
+  },
+};
+
+// Customer API
+export const customerAPI = {
+  list: async (): Promise<Customer[]> => {
+    const response = await api.get('/customers/list');
+    return response.data;
+  },
+
+  create: async (customerData: Partial<Customer>): Promise<Customer> => {
+    const response = await api.post('/customers/create', customerData);
+    return response.data;
+  },
+};
+
+// Dashboard API
+export const dashboardAPI = {
+  getStats: async (): Promise<any> => {
+    const response = await api.get('/dashboard/stats');
+    return response.data;
+  },
+};
+
+export default api;

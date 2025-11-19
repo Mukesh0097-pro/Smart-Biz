@@ -1,6 +1,8 @@
-module.exports = {
+/** @type {import('tailwindcss').Config} */
+export default {
   content: [
-    "./src/**/*.{js,jsx,ts,tsx}",
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
@@ -17,6 +19,9 @@ module.exports = {
           800: '#1e40af',
           900: '#1e3a8a',
         },
+      },
+      backdropBlur: {
+        xs: '2px',
       },
     },
   },

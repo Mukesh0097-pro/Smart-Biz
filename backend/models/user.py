@@ -15,6 +15,8 @@ class User(Base):
     email = Column(String, unique=True, nullable=False, index=True)
     hashed_password = Column(String, nullable=False)
     full_name = Column(String, nullable=False)
+    business_name = Column(String, nullable=True)
+    gstin = Column(String, nullable=True)
     
     # Timestamps
     created_at = Column(DateTime, default=datetime.utcnow)

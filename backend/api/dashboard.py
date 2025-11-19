@@ -19,43 +19,60 @@ async def get_dashboard_overview(
     db: Session = Depends(get_db)
 ):
     """Get dashboard overview with key metrics"""
-    user_id = current_user["user_id"]
-    
-    # Total revenue (all paid invoices)
-    total_revenue = db.query(func.sum(Invoice.total_amount)).filter(
-        Invoice.user_id == user_id,
-        Invoice.status == InvoiceStatus.PAID
-    ).scalar() or 0.0
-    
-    # Pending invoices
-    pending_invoices = db.query(func.count(Invoice.id)).filter(
-        Invoice.user_id == user_id,
-        Invoice.status.in_([InvoiceStatus.SENT, InvoiceStatus.OVERDUE])
-    ).scalar() or 0
-    
-    # Pending amount
-    pending_amount = db.query(func.sum(Invoice.total_amount)).filter(
-        Invoice.user_id == user_id,
-        Invoice.status.in_([InvoiceStatus.SENT, InvoiceStatus.OVERDUE])
-    ).scalar() or 0.0
-    
-    # This month's revenue
-    first_day_of_month = datetime.now().replace(day=1, hour=0, minute=0, second=0)
-    monthly_revenue = db.query(func.sum(Invoice.total_amount)).filter(
-        Invoice.user_id == user_id,
-        Invoice.status == InvoiceStatus.PAID,
-        Invoice.paid_at >= first_day_of_month
-    ).scalar() or 0.0
-    
-    return {
-        "total_revenue": total_revenue,
-        "pending_invoices": pending_invoices,
-        "pending_amount": pending_amount,
-        "monthly_revenue": monthly_revenue,
-        "total_invoices": db.query(func.count(Invoice.id)).filter(
+    try:
+        user_id = current_user["user_id"]
+        
+        # Total revenue (all paid invoices)
+        total_revenue = db.query(func.sum(Invoice.total_amount)).filter(
+            Invoice.user_id == user_id,
+            Invoice.status == InvoiceStatus.PAID
+        ).scalar()
+        total_revenue = float(total_revenue) if total_revenue else 0.0
+        
+        # Pending invoices
+        pending_invoices = db.query(func.count(Invoice.id)).filter(
+            Invoice.user_id == user_id,
+            Invoice.status.in_([InvoiceStatus.SENT, InvoiceStatus.OVERDUE])
+        ).scalar()
+        pending_invoices = int(pending_invoices) if pending_invoices else 0
+        
+        # Pending amount
+        pending_amount = db.query(func.sum(Invoice.total_amount)).filter(
+            Invoice.user_id == user_id,
+            Invoice.status.in_([InvoiceStatus.SENT, InvoiceStatus.OVERDUE])
+        ).scalar()
+        pending_amount = float(pending_amount) if pending_amount else 0.0
+        
+        # This month's revenue
+        first_day_of_month = datetime.now().replace(day=1, hour=0, minute=0, second=0)
+        monthly_revenue = db.query(func.sum(Invoice.total_amount)).filter(
+            Invoice.user_id == user_id,
+            Invoice.status == InvoiceStatus.PAID,
+            Invoice.paid_at >= first_day_of_month
+        ).scalar()
+        monthly_revenue = float(monthly_revenue) if monthly_revenue else 0.0
+        
+        # Total invoices
+        total_invoices = db.query(func.count(Invoice.id)).filter(
             Invoice.user_id == user_id
-        ).scalar() or 0
-    }
+        ).scalar()
+        total_invoices = int(total_invoices) if total_invoices else 0
+        
+        return {
+            "total_revenue": total_revenue,
+            "pending_invoices": pending_invoices,
+            "pending_amount": pending_amount,
+            "monthly_revenue": monthly_revenue,
+            "total_invoices": total_invoices
+        }
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Error fetching dashboard overview: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error fetching dashboard data: {str(e)}"
+        )
 
 @router.get("/insights")
 async def get_ai_insights(
